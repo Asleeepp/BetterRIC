@@ -1,0 +1,40 @@
+every 2 minutes: # Change how often you would like it here.
+	{event} = true
+	broadcast "&6&lITEM DROP HAS ARRIVED!"
+	delete players' metadata "ITEM"
+	loop all players where [input's gamemode != spectator]:
+		set {_} to random element out of items where [input != air] 
+		# If you would like to blacklist more items, add a comma infront of air and name any item you would like to blacklist. Example: air, diamond sword 
+		loop 9 times:
+			drop 100 of {_} at loop-player
+		set loop-player's metadata "ITEM" to {_}
+pickup:
+	if {event} = true:
+		1 of event-item != player's metadata "ITEM"
+		cancel event
+	else:
+		uncancel event
+on respawn:
+	if {event} = true:
+		set player's gamemode to spectator
+	else:
+		set player's gamemode to survival
+on food level change:
+	cancel event
+command randomitemchallenge [<text>]:
+	permission: op
+	trigger:
+		if arg-1 is "on", "On", "enable", "Enable", "Activate" or "activate":
+			{event} != true:
+				set {event} to true
+				broadcast "&6&lRandom Item Challenge Activated."
+				loop all players:
+					teleport loop-player to the spawn of world "world"
+					# You MUST change the world if you are playing in a world that is not called "world".
+					heal loop-player
+		else if arg-1 is "off", "Off", "disable", "Disable", "Deactivate" or "deactivate":
+			delete {event}
+			remove saturation from players
+			broadcast "&6&lRandom Item Challenge Deactivated."
+		else if arg-1 is not set:
+			send "You must specify what you want to do! (on/off)"
